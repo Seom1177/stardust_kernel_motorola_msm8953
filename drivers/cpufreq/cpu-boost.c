@@ -22,6 +22,7 @@
 #include <linux/slab.h>
 #include <linux/input.h>
 #include <linux/time.h>
+#include "../../kernel/sched/sched.h"
 
 struct cpu_sync {
 	int cpu;
@@ -204,6 +205,8 @@ static void do_input_boost(struct work_struct *work)
 	pr_debug("Setting input boost min for all CPUs\n");
 	for_each_possible_cpu(i) {
 		i_sync_info = &per_cpu(sync_info, i);
+		if (i >= 4 && cpu_rq(i)->nr_running == 0)
+			continue;
 		i_sync_info->input_boost_min = i_sync_info->input_boost_freq;
 	}
 
